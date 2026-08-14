@@ -9,7 +9,7 @@ clique=${3:-"."}
 uppercase_char() {
     local char=$1
 
-    (echo $char | tr '[a-z]' '[A-Z]' 2> /dev/null) || echo "${char^^}"
+    (echo "$char" | tr '[a-z]' '[A-Z]' 2> /dev/null) || echo "${char^^}"
 }
 
 # Function to transform characters to ZMK key behaviours
@@ -61,7 +61,7 @@ done
 formatted_result="$formatted_date$formatted_branch$formatted_commit$formatted_clique"
 formatted_result+="<&kp RET>"
 
-echo $formatted_result
+echo "$formatted_result"
 # Create new macro to define version, overwrite previous one
 
 echo '#define VERSION_MACRO' > "config/version.dtsi"

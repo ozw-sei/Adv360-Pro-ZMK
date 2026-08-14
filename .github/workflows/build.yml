@@ -2,6 +2,9 @@ on: [push, pull_request, workflow_dispatch]
 
 name: Build
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,18 +13,21 @@ jobs:
     name: Build (Legacy)
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Get version data
         id: get_info
+        env:
+          GH_SHA: ${{ github.sha }}
+          GH_REF: ${{ github.ref }}
         run: |
           timestamp=$(date +"%Y%m%d%H%M")
-          commit=$(echo "${{ github.sha }}" | cut -c1-7)
+          commit=$(echo "$GH_SHA" | cut -c1-7)
           file_prefix=$timestamp-$commit
-          branch_name=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}' | cut -c1-4)
+          branch_name=$(echo "$GH_REF" | awk -F'/' '{print $3}' | cut -c1-4)
           echo "file_prefix=$file_prefix" >> $GITHUB_OUTPUT
           bin/get_version.sh $branch_name $commit
       - name: Cache west modules
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         env:
           cache-name: cache-zephyr-modules
         with:
@@ -53,7 +59,7 @@ jobs:
       - name: Rename zmk.uf2
         run: cp build/left/zephyr/zmk.uf2 ${{ steps.get_info.outputs.file_prefix }}-left.uf2 && cp build/right/zephyr/zmk.uf2 ${{ steps.get_info.outputs.file_prefix }}-right.uf2
       - name: Archive (Adv360)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: firmware-no-clique
           path: |
@@ -66,18 +72,21 @@ jobs:
     name: Build (Clique)
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Get version data
         id: get_info
+        env:
+          GH_SHA: ${{ github.sha }}
+          GH_REF: ${{ github.ref }}
         run: |
           timestamp=$(date +"%Y%m%d%H%M")
-          commit=$(echo "${{ github.sha }}" | cut -c1-7)
+          commit=$(echo "$GH_SHA" | cut -c1-7)
           file_prefix=$timestamp-$commit
-          branch_name=$(echo "${{ github.ref }}" | awk -F'/' '{print $3}' | cut -c1-4)
+          branch_name=$(echo "$GH_REF" | awk -F'/' '{print $3}' | cut -c1-4)
           echo "file_prefix=$file_prefix" >> $GITHUB_OUTPUT
           bin/get_version.sh $branch_name $commit clique
       - name: Cache west modules
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         env:
           cache-name: cache-zephyr-modules
         with:
@@ -109,7 +118,7 @@ jobs:
       - name: Rename zmk.uf2
         run: cp build/left/zephyr/zmk.uf2 ${{ steps.get_info.outputs.file_prefix }}-left.uf2 && cp build/right/zephyr/zmk.uf2 ${{ steps.get_info.outputs.file_prefix }}-right.uf2
       - name: Archive (Adv360)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: firmware-clique
           path: |
